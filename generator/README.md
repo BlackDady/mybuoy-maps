@@ -106,7 +106,8 @@ gzip -k land_polygons.sqlite3       # -> land_polygons.sqlite3.gz  (≈ 1,88 Gio
 
 Puis publier le `.gz` en **GitHub Release** de ce dépôt (asset < 2 Gio).
 Le manifest servi par `mybuoy.example.org/map-checkupdate.php` pointe vers cet asset
-(champ `Url`), avec `Name: land_polygons`, `Version: <N>`, `FileSize: <taille du .gz en octets>`.
+(champ `Url`), avec `Name: land_polygons`, `Version: <N>`, `FileSize: <taille décompressée>`,
+`CompressedSize: <taille du .gz>`.
 
 > Côté app, le fichier installé est nommé `land_polygons_<Version>.sqlite3` (l'auto-scan le
 > retrouve) — le nom interne du `.gz` n'a aucune importance.

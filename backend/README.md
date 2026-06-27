@@ -51,7 +51,8 @@ maps/                               (= ~/maps, hors docroot : fichiers <name>_<v
 ## Mettre à jour / ajouter une map
 
 - **Sur GitHub** : éditer le tableau en dur dans `gb_maps_list()` (`Title`, `Name`,
-  `Version`, `FileSize` = taille du `.gz` en octets, `Url`).
+  `Version`, `FileSize` = taille **décompressée** (la base) en octets,
+  `CompressedSize` = taille du `.gz`, `Url`).
 - **Sur l'hébergement** : déposer `~/maps/<name>_<version>.<ext>` — détecté automatiquement
   (incrémenter la version dans le nom de fichier suffit).
 
@@ -63,11 +64,11 @@ maps/                               (= ~/maps, hors docroot : fichiers <name>_<v
   "Msg": "update",
   "Map": [
     { "Title": "Land polygons (monde)", "Name": "land_polygons", "Version": 1,
-      "FileSize": 2019622371,
+      "FileSize": 4235317248, "CompressedSize": 2019622371,
       "Url": "https://github.com/BlackDady/mybuoy-maps/releases/download/maps-v1/land_polygons.sqlite3.gz" },
-    { "Title": "France", "Name": "france", "Version": 2, "FileSize": 1716,
+    { "Title": "France", "Name": "france", "Version": 2, "FileSize": 49152, "CompressedSize": 1716,
       "Url": "https://mybuoy.example.org/mybuoy/map-dl.php?name=france&ver=2" },
-    { "Title": "Israel", "Name": "israel", "Version": 1, "FileSize": 1716,
+    { "Title": "Israel", "Name": "israel", "Version": 1, "FileSize": 49152, "CompressedSize": 1716,
       "Url": "https://mybuoy.example.org/mybuoy/map-dl.php?name=israel&ver=1" }
   ]
 }

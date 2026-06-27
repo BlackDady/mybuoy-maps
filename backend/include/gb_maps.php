@@ -37,8 +37,9 @@ function gb_maps_list() {
             'Title'    => 'Land polygons (monde)',
             'Name'     => 'land_polygons',
             'Version'  => 1,
-            'FileSize' => 2019622371, // land_polygons.sqlite3.gz (octets)
-            'Url'      => 'https://github.com/BlackDady/mybuoy-maps/releases/download/maps-v1/land_polygons.sqlite3.gz',
+            'FileSize'       => 4235317248, // .sqlite3 décompressé (la base)
+            'CompressedSize' => 2019622371, // .gz téléchargé
+            'Url'            => 'https://github.com/BlackDady/mybuoy-maps/releases/download/maps-v1/land_polygons.sqlite3.gz',
         ),
     );
 
@@ -109,6 +110,22 @@ function gb_parse_map_filename($filename) {
 
 
 // ===========================================================================
+//  Taille décompressée d'un .gz : footer gzip (4 derniers octets = ISIZE,
+//  little-endian, modulo 2^32 -> valable pour un décompressé < 4 Go).
+// ===========================================================================
+function gb_gz_inflated_size($path) {
+    $fp = @fopen($path, 'rb');
+    if( $fp === false ) return 0;
+    fseek($fp, -4, SEEK_END);
+    $data = fread($fp, 4);
+    fclose($fp);
+    if( $data === false || strlen($data) < 4 ) return 0;
+    $u = unpack('V', $data); // uint32 little-endian
+    return $u[1];
+}
+
+
+// ===========================================================================
 //  Génère la liste des maps en scannant GB_MAPS_DIR pour des fichiers
 //  "<name>_<version>.<ext>". Reprend la logique de l'ancien _Map() / GBNET_EncodeMap :
 //    - groupement par NOM (une map = plusieurs versions),
@@ -133,9 +150,13 @@ function gb_scan_maps_dir($base_url) {
         $p = gb_parse_map_filename($file);
         if( $p === null ) continue;
 
+        $csize = filesize($path);                                       // fichier sur disque (.gz le plus souvent)
+        $ext   = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        $dsize = ($ext === 'gz') ? gb_gz_inflated_size($path) : $csize; // base décompressée (== fichier si non-gz)
         $by_name[$p['name']][] = array(
-            'version'  => $p['version'],
-            'filesize' => filesize($path),
+            'version'        => $p['version'],
+            'filesize'       => $dsize,   // base décompressée
+            'compressedsize' => $csize,   // .gz
         );
     }
 
@@ -147,9 +168,10 @@ function gb_scan_maps_dir($base_url) {
         $maps[] = array(
             'Title'    => ucwords(str_replace('_', ' ', $name)),
             'Name'     => $name,
-            'Version'  => $latest['version'],
-            'FileSize' => $latest['filesize'],
-            'Url'      => rtrim($base_url, '/') . '/map-dl.php?name=' . rawurlencode($name) . '&ver=' . $latest['version'],
+            'Version'        => $latest['version'],
+            'FileSize'       => $latest['filesize'],        // base décompressée
+            'CompressedSize' => $latest['compressedsize'],  // .gz
+            'Url'            => rtrim($base_url, '/') . '/map-dl.php?name=' . rawurlencode($name) . '&ver=' . $latest['version'],
         );
     }
     return $maps;
