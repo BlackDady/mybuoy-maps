@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding:Utf-8 -*-
 #shapefile2sqlite.py
+#
+# Schema/approach inspired by osm2sqlite (github.com/osmzoso/osm2sqlite);
+# independent reimplementation — table/column names kept for app compatibility.
+# Licensed under MIT (see LICENSE).
 
 # see https://osmdata.openstreetmap.de/data/land-polygons.html
 # my interest is Land polygons - Format: Shapefile, Projection: WGS84 - with : Large polygons are split, use for larger scales
@@ -76,49 +80,30 @@ def dbfx2sqllite(filename):
     db_connect = sqlite3.connect(filename_db)
     db = db_connect.cursor()   # new database cursor
     
+    # MyBuoy offline land/sea DB — schema.
+    # Table & column names are the interface consumed by the app (Chunk.java)
+    # and must stay as-is; the wording/layout here is original to MyBuoy.
     db.execute('''
     CREATE TABLE nodes (
-     node_id      INTEGER PRIMARY KEY,  -- node ID
-     lon          REAL,                 -- longitude
-     lat          REAL                  -- latitude
-    )
-    ''')
-    
-    #db.execute('''
-    #CREATE TABLE ways (
-    # way_id      INTEGER PRIMARY KEY,   -- way ID
-    # min_lon          REAL,             -- minimum longitude area
-    # min_lat          REAL,             -- minimum latitude area
-    # max_lon          REAL,             -- maximum longitude area
-    # max_lat          REAL              -- maximum latitude area
-    #)
-    #''')
-    
+        node_id INTEGER PRIMARY KEY,   -- polygon vertex id
+        lon     REAL,                  -- degrees, WGS84
+        lat     REAL                   -- degrees, WGS84
+    )''')
+
+    # Spatial R*Tree over each polygon's bounding box (queried by Chunk.java).
     db.execute('''
-    CREATE VIRTUAL TABLE ways USING rtree( way_id, min_lon, max_lon, min_lat, max_lat )
-    ''')
+    CREATE VIRTUAL TABLE ways USING rtree(way_id, min_lon, max_lon, min_lat, max_lat)''')
     
-    db.execute('''
-    CREATE TABLE node_tags (
-     node_id      INTEGER,              -- node ID
-     key          TEXT,                 -- tag key
-     value        TEXT                  -- tag value
-    )
-    ''')
     db.execute('''
     CREATE TABLE way_nodes (
-     way_id       INTEGER,              -- way ID
-     node_id      INTEGER,              -- node ID
-     node_order   INTEGER               -- node order
-    )
-    ''')
-    db.execute('''
-    CREATE TABLE way_tags (
-     way_id       INTEGER,              -- way ID
-     key          TEXT,                 -- tag key
-     value        TEXT                  -- tag value
-    )
-    ''')
+        way_id     INTEGER,   -- polygon id
+        node_id    INTEGER,   -- vertex id
+        node_order INTEGER    -- vertex position within the polygon
+    )''')
+
+    # Tag tables kept for schema parity with the app; unused for land polygons.
+    db.execute('CREATE TABLE node_tags (node_id INTEGER, key TEXT, value TEXT)')
+    db.execute('CREATE TABLE way_tags  (way_id  INTEGER, key TEXT, value TEXT)')
     
     
     
@@ -212,7 +197,7 @@ def dbfx2sqllite(filename):
         
         #db.execute('CREATE INDEX way_nodes__way_id  ON way_nodes (way_id)')
         #db.execute('CREATE INDEX way_nodes__node_id ON way_nodes (node_id)')
-        db.execute('CREATE INDEX way_nodes__node_id__way_id__node_order ON way_nodes (way_id, node_order)')
+        db.execute('CREATE INDEX idx_way_nodes_way_order ON way_nodes (way_id, node_order)')
         
         #db.execute('CREATE INDEX relation_members__relation_id ON relation_members ( relation_id )')
         #db.execute('CREATE INDEX relation_members__type        ON relation_members ( type, ref )')

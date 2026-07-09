@@ -33,3 +33,18 @@ ce dépôt (à incrémenter à chaque régénération de la base).
 | Version | Tag | Asset | Taille `.gz` | Décompressé |
 |---------|-----|-------|--------------|-------------|
 | 1 | [`maps-v1`](../../releases/tag/maps-v1) | `land_polygons.sqlite3.gz` | 2 019 622 371 o | 4 235 317 248 o |
+
+## License
+
+This repository mixes two things under two licenses:
+
+- **Map data** (the `land_polygons` databases published in Releases): derived
+  from OpenStreetMap, licensed under the **ODbL v1.0**, © OpenStreetMap
+  contributors. See [DATA-LICENSE.md](DATA-LICENSE.md).
+- **Code** (`generator/`, `backend/`): licensed under the **[MIT](LICENSE)**
+  license. The database schema in `generator/shapefile2sqlite.py` is an
+  independent reimplementation inspired by
+  [osm2sqlite](https://github.com/osmzoso/osm2sqlite).
+
+When publishing a database Release, include the ODbL attribution in the
+release notes and ship `DATA-LICENSE.md` next to the `.gz` asset.
