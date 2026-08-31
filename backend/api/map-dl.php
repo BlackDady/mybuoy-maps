@@ -10,7 +10,7 @@
  * Supporte GET (téléchargement, avec Range) et HEAD (taille + Accept-Ranges),
  * ce qu'attend le downloader de l'app (HEAD puis GET avec reprise).
  */
-require_once __DIR__ . '/include/gb_maps.php';
+require_once __DIR__ . '/../include/gb_maps.php';
 
 gb_cors();
 

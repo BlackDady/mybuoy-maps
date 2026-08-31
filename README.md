@@ -12,11 +12,13 @@ l'hébergement mutualisé (trop petit pour ~4 Go).
   téléchargées et décompressées par l'app à l'installation.
 - **[`generator/`](generator/)** → le code et le mode opératoire pour (re)générer la base
   à partir des *land polygons* OpenStreetMap. Voir [generator/README.md](generator/README.md).
+- **[`backend/`](backend/)** → le backend PHP qui sert le manifest (`api/`) et son include
+  partagé (`include/`). Voir [backend/README.md](backend/README.md).
 
 ## Comment l'app récupère la base
 
 ```
-mybuoy.example.org/map-checkupdate.php   (manifest JSON : nom, version, taille, URL)
+mybuoy.example.org/mybuoy/api/map-checkupdate.php   (manifest JSON : nom, version, taille, URL)
         │  l'app lit ce manifest (AppManager.downloadMapsInfos)
         ▼
 GitHub Release de ce dépôt : land_polygons.sqlite3.gz   (le gros fichier)
@@ -27,6 +29,12 @@ land_polygons_<version>.sqlite3 sur l'appareil → détecté par l'auto-scan, lu
 
 Le manifest pointe vers l'asset de release via son champ `Url`. La `Version` est propre à
 ce dépôt (à incrémenter à chaque régénération de la base).
+
+L'adresse du backend n'est pas figée dans l'app : le réglage *Offline maps server*
+(Developer parameters) porte l'**adresse de base** — `https://mybuoy.example.org/mybuoy/api`
+— et l'app y ajoute elle-même `/map-checkupdate.php`. Chacun peut donc faire tourner MyBuoy
+contre son propre serveur. Le backend est dans [`backend/`](backend/), voir
+[backend/README.md](backend/README.md).
 
 ## Releases
 

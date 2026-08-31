@@ -83,9 +83,10 @@ function gb_param($name, $default = '') {
 
 
 // ===========================================================================
-//  URL de base où réside ce backend (pour construire les liens map-dl.php),
+//  URL de base où résident les scripts appelés (le dossier api/), pour construire
+//  les liens map-dl.php,
 //  auto-déduite de la requête. Hors-web (CLI) : repli sur GB_SITE_URL.
-//  Ex. : https://mybuoy.example.org/mybuoy
+//  Ex. : https://mybuoy.example.org/mybuoy/api
 // ===========================================================================
 function gb_base_url() {
     if( !empty($_SERVER['HTTP_HOST']) ) {
